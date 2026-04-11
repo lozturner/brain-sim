@@ -1,0 +1,1143 @@
+{
+  "frontal_pole": {
+    "name": "Frontal Pole",
+    "file": "regions/frontal_pole.obj",
+    "lobe": "Frontal",
+    "desc": "Planning, personality, decision making",
+    "centroid": [
+      -0.02,
+      1.83,
+      0.28
+    ],
+    "bboxMin": [
+      -1.02,
+      1.19,
+      -0.52
+    ],
+    "bboxMax": [
+      0.96,
+      2.21,
+      0.95
+    ],
+    "vertexCount": 2075,
+    "faceCount": 3772,
+    "connects": [
+      "superior_frontal_L",
+      "superior_frontal_R",
+      "orbitofrontal_L",
+      "orbitofrontal_R",
+      "anterior_cingulate_L"
+    ],
+    "color": "#4488ff"
+  },
+  "superior_frontal_L": {
+    "name": "Superior Frontal (Left)",
+    "file": "regions/superior_frontal_L.obj",
+    "lobe": "Frontal",
+    "desc": "Working memory, self-awareness",
+    "centroid": [
+      -0.43,
+      0.99,
+      1.53
+    ],
+    "bboxMin": [
+      -1.28,
+      0.02,
+      0.69
+    ],
+    "bboxMax": [
+      -0.02,
+      2.13,
+      2.44
+    ],
+    "vertexCount": 3828,
+    "faceCount": 7096,
+    "connects": [
+      "middle_frontal_L",
+      "precentral_gyrus_L",
+      "anterior_cingulate_L",
+      "superior_frontal_R"
+    ],
+    "color": "#4488ff"
+  },
+  "superior_frontal_R": {
+    "name": "Superior Frontal (Right)",
+    "file": "regions/superior_frontal_R.obj",
+    "lobe": "Frontal",
+    "desc": "Working memory, self-awareness",
+    "centroid": [
+      0.39,
+      1.02,
+      1.52
+    ],
+    "bboxMin": [
+      -0.02,
+      0.02,
+      0.66
+    ],
+    "bboxMax": [
+      1.27,
+      2.18,
+      2.34
+    ],
+    "vertexCount": 4074,
+    "faceCount": 7534,
+    "connects": [
+      "middle_frontal_R",
+      "precentral_gyrus_R",
+      "anterior_cingulate_R",
+      "superior_frontal_L"
+    ],
+    "color": "#4488ff"
+  },
+  "middle_frontal_L": {
+    "name": "Middle Frontal (Left)",
+    "file": "regions/middle_frontal_L.obj",
+    "lobe": "Frontal",
+    "desc": "Attention, executive function",
+    "centroid": [
+      -1.21,
+      1.12,
+      1.01
+    ],
+    "bboxMin": [
+      -1.96,
+      0.22,
+      0.13
+    ],
+    "bboxMax": [
+      -0.39,
+      1.99,
+      1.76
+    ],
+    "vertexCount": 3070,
+    "faceCount": 5758,
+    "connects": [
+      "inferior_frontal_L",
+      "precentral_gyrus_L",
+      "inferior_parietal_L"
+    ],
+    "color": "#4488ff"
+  },
+  "middle_frontal_R": {
+    "name": "Middle Frontal (Right)",
+    "file": "regions/middle_frontal_R.obj",
+    "lobe": "Frontal",
+    "desc": "Attention, executive function",
+    "centroid": [
+      1.18,
+      1.15,
+      0.96
+    ],
+    "bboxMin": [
+      0.49,
+      0.19,
+      0.12
+    ],
+    "bboxMax": [
+      1.93,
+      2.03,
+      1.78
+    ],
+    "vertexCount": 3287,
+    "faceCount": 6101,
+    "connects": [
+      "inferior_frontal_R",
+      "precentral_gyrus_R",
+      "inferior_parietal_R"
+    ],
+    "color": "#4488ff"
+  },
+  "inferior_frontal_L": {
+    "name": "Inferior Frontal (Left)",
+    "file": "regions/inferior_frontal_L.obj",
+    "lobe": "Frontal",
+    "desc": "Broca's area - speech production",
+    "centroid": [
+      -1.51,
+      0.93,
+      0.2
+    ],
+    "bboxMin": [
+      -2.02,
+      0.27,
+      -0.63
+    ],
+    "bboxMax": [
+      -0.99,
+      1.72,
+      0.94
+    ],
+    "vertexCount": 2697,
+    "faceCount": 5103,
+    "connects": [
+      "superior_temporal_L",
+      "insula_L",
+      "precentral_gyrus_L"
+    ],
+    "color": "#4488ff"
+  },
+  "inferior_frontal_R": {
+    "name": "Inferior Frontal (Right)",
+    "file": "regions/inferior_frontal_R.obj",
+    "lobe": "Frontal",
+    "desc": "Prosody, emotional language",
+    "centroid": [
+      1.51,
+      0.92,
+      0.2
+    ],
+    "bboxMin": [
+      0.92,
+      0.27,
+      -0.63
+    ],
+    "bboxMax": [
+      2.04,
+      1.71,
+      0.94
+    ],
+    "vertexCount": 2582,
+    "faceCount": 4804,
+    "connects": [
+      "superior_temporal_R",
+      "insula_R",
+      "precentral_gyrus_R"
+    ],
+    "color": "#4488ff"
+  },
+  "precentral_gyrus_L": {
+    "name": "Precentral Gyrus (Left)",
+    "file": "regions/precentral_gyrus_L.obj",
+    "lobe": "Frontal",
+    "desc": "Primary motor cortex (left body)",
+    "centroid": [
+      -0.76,
+      0.1,
+      1.83
+    ],
+    "bboxMin": [
+      -1.93,
+      -0.4,
+      0.97
+    ],
+    "bboxMax": [
+      -0.02,
+      0.79,
+      2.7
+    ],
+    "vertexCount": 4567,
+    "faceCount": 8522,
+    "connects": [
+      "postcentral_gyrus_L",
+      "superior_frontal_L",
+      "cerebellum_L"
+    ],
+    "color": "#4488ff"
+  },
+  "precentral_gyrus_R": {
+    "name": "Precentral Gyrus (Right)",
+    "file": "regions/precentral_gyrus_R.obj",
+    "lobe": "Frontal",
+    "desc": "Primary motor cortex (right body)",
+    "centroid": [
+      0.72,
+      0.09,
+      1.76
+    ],
+    "bboxMin": [
+      -0.02,
+      -0.4,
+      0.86
+    ],
+    "bboxMax": [
+      1.9,
+      0.8,
+      2.66
+    ],
+    "vertexCount": 5214,
+    "faceCount": 9698,
+    "connects": [
+      "postcentral_gyrus_R",
+      "superior_frontal_R",
+      "cerebellum_R"
+    ],
+    "color": "#4488ff"
+  },
+  "orbitofrontal_L": {
+    "name": "Orbitofrontal (Left)",
+    "file": "regions/orbitofrontal_L.obj",
+    "lobe": "Frontal",
+    "desc": "Reward, emotion, social behaviour",
+    "centroid": [
+      -0.56,
+      1.35,
+      -0.72
+    ],
+    "bboxMin": [
+      -1.53,
+      0.44,
+      -2.02
+    ],
+    "bboxMax": [
+      -0.02,
+      2.05,
+      0.14
+    ],
+    "vertexCount": 2929,
+    "faceCount": 5411,
+    "connects": [
+      "temporal_pole_L",
+      "insula_L",
+      "anterior_cingulate_L"
+    ],
+    "color": "#4488ff"
+  },
+  "orbitofrontal_R": {
+    "name": "Orbitofrontal (Right)",
+    "file": "regions/orbitofrontal_R.obj",
+    "lobe": "Frontal",
+    "desc": "Reward, emotion, social behaviour",
+    "centroid": [
+      0.52,
+      1.34,
+      -0.68
+    ],
+    "bboxMin": [
+      -0.02,
+      0.48,
+      -1.96
+    ],
+    "bboxMax": [
+      1.54,
+      2.02,
+      0.16
+    ],
+    "vertexCount": 3038,
+    "faceCount": 5655,
+    "connects": [
+      "temporal_pole_R",
+      "insula_R",
+      "anterior_cingulate_R"
+    ],
+    "color": "#4488ff"
+  },
+  "postcentral_gyrus_L": {
+    "name": "Postcentral Gyrus (Left)",
+    "file": "regions/postcentral_gyrus_L.obj",
+    "lobe": "Parietal",
+    "desc": "Primary somatosensory cortex",
+    "centroid": [
+      -0.93,
+      -0.49,
+      1.95
+    ],
+    "bboxMin": [
+      -1.8,
+      -0.91,
+      1.22
+    ],
+    "bboxMax": [
+      -0.12,
+      -0.09,
+      2.7
+    ],
+    "vertexCount": 2031,
+    "faceCount": 3621,
+    "connects": [
+      "precentral_gyrus_L",
+      "superior_parietal_L",
+      "inferior_parietal_L",
+      "insula_L"
+    ],
+    "color": "#44cc88"
+  },
+  "postcentral_gyrus_R": {
+    "name": "Postcentral Gyrus (Right)",
+    "file": "regions/postcentral_gyrus_R.obj",
+    "lobe": "Parietal",
+    "desc": "Primary somatosensory cortex",
+    "centroid": [
+      0.89,
+      -0.5,
+      1.93
+    ],
+    "bboxMin": [
+      0.11,
+      -0.88,
+      1.14
+    ],
+    "bboxMax": [
+      1.75,
+      -0.1,
+      2.65
+    ],
+    "vertexCount": 2111,
+    "faceCount": 3757,
+    "connects": [
+      "precentral_gyrus_R",
+      "superior_parietal_R",
+      "inferior_parietal_R",
+      "insula_R"
+    ],
+    "color": "#44cc88"
+  },
+  "superior_parietal_L": {
+    "name": "Superior Parietal (Left)",
+    "file": "regions/superior_parietal_L.obj",
+    "lobe": "Parietal",
+    "desc": "Spatial orientation, attention",
+    "centroid": [
+      -0.38,
+      -0.69,
+      2.15
+    ],
+    "bboxMin": [
+      -0.97,
+      -0.96,
+      1.37
+    ],
+    "bboxMax": [
+      -0.02,
+      -0.4,
+      2.68
+    ],
+    "vertexCount": 765,
+    "faceCount": 1287,
+    "connects": [
+      "inferior_parietal_L",
+      "precuneus_L",
+      "lateral_occipital_L"
+    ],
+    "color": "#44cc88"
+  },
+  "superior_parietal_R": {
+    "name": "Superior Parietal (Right)",
+    "file": "regions/superior_parietal_R.obj",
+    "lobe": "Parietal",
+    "desc": "Spatial orientation, attention",
+    "centroid": [
+      0.33,
+      -0.65,
+      2.05
+    ],
+    "bboxMin": [
+      -0.02,
+      -0.89,
+      1.45
+    ],
+    "bboxMax": [
+      0.85,
+      -0.4,
+      2.58
+    ],
+    "vertexCount": 538,
+    "faceCount": 851,
+    "connects": [
+      "inferior_parietal_R",
+      "precuneus_R",
+      "lateral_occipital_R"
+    ],
+    "color": "#44cc88"
+  },
+  "inferior_parietal_L": {
+    "name": "Inferior Parietal (Left)",
+    "file": "regions/inferior_parietal_L.obj",
+    "lobe": "Parietal",
+    "desc": "Language, math, body image",
+    "centroid": [
+      -1.45,
+      -0.73,
+      1.04
+    ],
+    "bboxMin": [
+      -2.17,
+      -1.23,
+      0.43
+    ],
+    "bboxMax": [
+      -0.64,
+      0.02,
+      1.81
+    ],
+    "vertexCount": 2529,
+    "faceCount": 4737,
+    "connects": [
+      "superior_temporal_L",
+      "middle_temporal_L",
+      "postcentral_gyrus_L"
+    ],
+    "color": "#44cc88"
+  },
+  "inferior_parietal_R": {
+    "name": "Inferior Parietal (Right)",
+    "file": "regions/inferior_parietal_R.obj",
+    "lobe": "Parietal",
+    "desc": "Spatial awareness, attention",
+    "centroid": [
+      1.41,
+      -0.74,
+      1.04
+    ],
+    "bboxMin": [
+      0.62,
+      -1.28,
+      0.45
+    ],
+    "bboxMax": [
+      2.08,
+      0.04,
+      1.86
+    ],
+    "vertexCount": 2431,
+    "faceCount": 4522,
+    "connects": [
+      "superior_temporal_R",
+      "middle_temporal_R",
+      "postcentral_gyrus_R"
+    ],
+    "color": "#44cc88"
+  },
+  "superior_temporal_L": {
+    "name": "Superior Temporal (Left)",
+    "file": "regions/superior_temporal_L.obj",
+    "lobe": "Temporal",
+    "desc": "Wernicke's area - language comprehension",
+    "centroid": [
+      -1.52,
+      -0.11,
+      0.17
+    ],
+    "bboxMin": [
+      -2.18,
+      -0.95,
+      -1.0
+    ],
+    "bboxMax": [
+      -0.02,
+      0.92,
+      1.1
+    ],
+    "vertexCount": 4567,
+    "faceCount": 8369,
+    "connects": [
+      "middle_temporal_L",
+      "inferior_frontal_L",
+      "insula_L"
+    ],
+    "color": "#eeaa33"
+  },
+  "superior_temporal_R": {
+    "name": "Superior Temporal (Right)",
+    "file": "regions/superior_temporal_R.obj",
+    "lobe": "Temporal",
+    "desc": "Music, prosody, voice recognition",
+    "centroid": [
+      1.57,
+      -0.09,
+      0.18
+    ],
+    "bboxMin": [
+      -0.0,
+      -0.93,
+      -1.01
+    ],
+    "bboxMax": [
+      2.15,
+      0.88,
+      1.1
+    ],
+    "vertexCount": 4468,
+    "faceCount": 8196,
+    "connects": [
+      "middle_temporal_R",
+      "inferior_frontal_R",
+      "insula_R"
+    ],
+    "color": "#eeaa33"
+  },
+  "middle_temporal_L": {
+    "name": "Middle Temporal (Left)",
+    "file": "regions/middle_temporal_L.obj",
+    "lobe": "Temporal",
+    "desc": "Semantic processing, reading",
+    "centroid": [
+      -1.63,
+      -0.58,
+      -0.35
+    ],
+    "bboxMin": [
+      -2.15,
+      -1.51,
+      -1.6
+    ],
+    "bboxMax": [
+      -0.79,
+      0.42,
+      0.56
+    ],
+    "vertexCount": 2416,
+    "faceCount": 4283,
+    "connects": [
+      "inferior_temporal_L",
+      "superior_temporal_L",
+      "fusiform_gyrus_L"
+    ],
+    "color": "#eeaa33"
+  },
+  "middle_temporal_R": {
+    "name": "Middle Temporal (Right)",
+    "file": "regions/middle_temporal_R.obj",
+    "lobe": "Temporal",
+    "desc": "Face recognition, visual processing",
+    "centroid": [
+      1.63,
+      -0.62,
+      -0.33
+    ],
+    "bboxMin": [
+      0.74,
+      -1.55,
+      -1.62
+    ],
+    "bboxMax": [
+      2.15,
+      0.43,
+      0.57
+    ],
+    "vertexCount": 2853,
+    "faceCount": 5074,
+    "connects": [
+      "inferior_temporal_R",
+      "superior_temporal_R",
+      "fusiform_gyrus_R"
+    ],
+    "color": "#eeaa33"
+  },
+  "inferior_temporal_L": {
+    "name": "Inferior Temporal (Left)",
+    "file": "regions/inferior_temporal_L.obj",
+    "lobe": "Temporal",
+    "desc": "Object recognition, visual memory",
+    "centroid": [
+      -1.41,
+      -0.7,
+      -0.96
+    ],
+    "bboxMin": [
+      -1.86,
+      -1.6,
+      -1.63
+    ],
+    "bboxMax": [
+      -0.89,
+      -0.03,
+      -0.23
+    ],
+    "vertexCount": 1605,
+    "faceCount": 2838,
+    "connects": [
+      "fusiform_gyrus_L",
+      "temporal_pole_L",
+      "middle_temporal_L"
+    ],
+    "color": "#eeaa33"
+  },
+  "inferior_temporal_R": {
+    "name": "Inferior Temporal (Right)",
+    "file": "regions/inferior_temporal_R.obj",
+    "lobe": "Temporal",
+    "desc": "Object recognition, visual memory",
+    "centroid": [
+      1.43,
+      -0.72,
+      -0.99
+    ],
+    "bboxMin": [
+      0.93,
+      -1.61,
+      -1.65
+    ],
+    "bboxMax": [
+      1.9,
+      -0.07,
+      -0.24
+    ],
+    "vertexCount": 1683,
+    "faceCount": 3017,
+    "connects": [
+      "fusiform_gyrus_R",
+      "temporal_pole_R",
+      "middle_temporal_R"
+    ],
+    "color": "#eeaa33"
+  },
+  "temporal_pole_L": {
+    "name": "Temporal Pole (Left)",
+    "file": "regions/temporal_pole_L.obj",
+    "lobe": "Temporal",
+    "desc": "Emotion, social cognition",
+    "centroid": [
+      -0.95,
+      0.61,
+      -1.38
+    ],
+    "bboxMin": [
+      -1.87,
+      -0.14,
+      -2.3
+    ],
+    "bboxMax": [
+      -0.02,
+      1.34,
+      -0.5
+    ],
+    "vertexCount": 4620,
+    "faceCount": 8673,
+    "connects": [
+      "orbitofrontal_L",
+      "inferior_temporal_L",
+      "insula_L"
+    ],
+    "color": "#eeaa33"
+  },
+  "temporal_pole_R": {
+    "name": "Temporal Pole (Right)",
+    "file": "regions/temporal_pole_R.obj",
+    "lobe": "Temporal",
+    "desc": "Emotion, social cognition",
+    "centroid": [
+      0.88,
+      0.64,
+      -1.37
+    ],
+    "bboxMin": [
+      -0.02,
+      -0.15,
+      -2.31
+    ],
+    "bboxMax": [
+      1.85,
+      1.3,
+      -0.44
+    ],
+    "vertexCount": 4626,
+    "faceCount": 8723,
+    "connects": [
+      "orbitofrontal_R",
+      "inferior_temporal_R",
+      "insula_R"
+    ],
+    "color": "#eeaa33"
+  },
+  "fusiform_gyrus_L": {
+    "name": "Fusiform Gyrus (Left)",
+    "file": "regions/fusiform_gyrus_L.obj",
+    "lobe": "Temporal",
+    "desc": "Face and word recognition",
+    "centroid": [
+      -0.83,
+      -1.02,
+      -0.39
+    ],
+    "bboxMin": [
+      -1.35,
+      -1.6,
+      -0.97
+    ],
+    "bboxMax": [
+      -0.36,
+      -0.63,
+      0.16
+    ],
+    "vertexCount": 1211,
+    "faceCount": 2138,
+    "connects": [
+      "lingual_gyrus_L",
+      "inferior_temporal_L",
+      "lateral_occipital_L"
+    ],
+    "color": "#eeaa33"
+  },
+  "fusiform_gyrus_R": {
+    "name": "Fusiform Gyrus (Right)",
+    "file": "regions/fusiform_gyrus_R.obj",
+    "lobe": "Temporal",
+    "desc": "Face and word recognition",
+    "centroid": [
+      0.81,
+      -1.01,
+      -0.4
+    ],
+    "bboxMin": [
+      0.32,
+      -1.61,
+      -0.96
+    ],
+    "bboxMax": [
+      1.31,
+      -0.58,
+      0.22
+    ],
+    "vertexCount": 1191,
+    "faceCount": 2120,
+    "connects": [
+      "lingual_gyrus_R",
+      "inferior_temporal_R",
+      "lateral_occipital_R"
+    ],
+    "color": "#eeaa33"
+  },
+  "lingual_gyrus_L": {
+    "name": "Lingual Gyrus (Left)",
+    "file": "regions/lingual_gyrus_L.obj",
+    "lobe": "Occipital",
+    "desc": "Visual processing, colour perception",
+    "centroid": [
+      -0.56,
+      -1.24,
+      -0.14
+    ],
+    "bboxMin": [
+      -0.91,
+      -1.71,
+      -0.5
+    ],
+    "bboxMax": [
+      -0.05,
+      -0.81,
+      0.25
+    ],
+    "vertexCount": 164,
+    "faceCount": 236,
+    "connects": [
+      "calcarine_L",
+      "fusiform_gyrus_L",
+      "cuneus_L"
+    ],
+    "color": "#cc44aa"
+  },
+  "lingual_gyrus_R": {
+    "name": "Lingual Gyrus (Right)",
+    "file": "regions/lingual_gyrus_R.obj",
+    "lobe": "Occipital",
+    "desc": "Visual processing, colour perception",
+    "centroid": [
+      0.54,
+      -1.27,
+      -0.18
+    ],
+    "bboxMin": [
+      0.07,
+      -1.69,
+      -0.42
+    ],
+    "bboxMax": [
+      0.89,
+      -0.82,
+      0.06
+    ],
+    "vertexCount": 45,
+    "faceCount": 49,
+    "connects": [
+      "calcarine_R",
+      "fusiform_gyrus_R",
+      "cuneus_R"
+    ],
+    "color": "#cc44aa"
+  },
+  "lateral_occipital_L": {
+    "name": "Lateral Occipital (Left)",
+    "file": "regions/lateral_occipital_L.obj",
+    "lobe": "Occipital",
+    "desc": "Object recognition, motion detection",
+    "centroid": [
+      -1.08,
+      -1.27,
+      0.12
+    ],
+    "bboxMin": [
+      -1.64,
+      -1.68,
+      -0.32
+    ],
+    "bboxMax": [
+      -0.57,
+      -0.9,
+      0.54
+    ],
+    "vertexCount": 450,
+    "faceCount": 739,
+    "connects": [
+      "fusiform_gyrus_L",
+      "inferior_parietal_L",
+      "middle_temporal_L"
+    ],
+    "color": "#cc44aa"
+  },
+  "lateral_occipital_R": {
+    "name": "Lateral Occipital (Right)",
+    "file": "regions/lateral_occipital_R.obj",
+    "lobe": "Occipital",
+    "desc": "Object recognition, motion detection",
+    "centroid": [
+      1.1,
+      -1.31,
+      0.1
+    ],
+    "bboxMin": [
+      0.56,
+      -1.77,
+      -0.35
+    ],
+    "bboxMax": [
+      1.66,
+      -0.88,
+      0.57
+    ],
+    "vertexCount": 479,
+    "faceCount": 788,
+    "connects": [
+      "fusiform_gyrus_R",
+      "inferior_parietal_R",
+      "middle_temporal_R"
+    ],
+    "color": "#cc44aa"
+  },
+  "anterior_cingulate_L": {
+    "name": "Anterior Cingulate (Left)",
+    "file": "regions/anterior_cingulate_L.obj",
+    "lobe": "Limbic",
+    "desc": "Error detection, emotion, pain",
+    "centroid": [
+      -0.18,
+      0.85,
+      0.44
+    ],
+    "bboxMin": [
+      -0.69,
+      -0.01,
+      -0.46
+    ],
+    "bboxMax": [
+      -0.02,
+      1.61,
+      0.97
+    ],
+    "vertexCount": 1730,
+    "faceCount": 3157,
+    "connects": [
+      "posterior_cingulate_L",
+      "orbitofrontal_L",
+      "insula_L",
+      "anterior_cingulate_R"
+    ],
+    "color": "#ff7744"
+  },
+  "anterior_cingulate_R": {
+    "name": "Anterior Cingulate (Right)",
+    "file": "regions/anterior_cingulate_R.obj",
+    "lobe": "Limbic",
+    "desc": "Error detection, emotion, pain",
+    "centroid": [
+      0.15,
+      0.86,
+      0.44
+    ],
+    "bboxMin": [
+      -0.02,
+      -0.01,
+      -0.33
+    ],
+    "bboxMax": [
+      0.46,
+      1.6,
+      0.97
+    ],
+    "vertexCount": 1630,
+    "faceCount": 3017,
+    "connects": [
+      "posterior_cingulate_R",
+      "orbitofrontal_R",
+      "insula_R",
+      "anterior_cingulate_L"
+    ],
+    "color": "#ff7744"
+  },
+  "posterior_cingulate_L": {
+    "name": "Posterior Cingulate (Left)",
+    "file": "regions/posterior_cingulate_L.obj",
+    "lobe": "Limbic",
+    "desc": "Memory, default mode network",
+    "centroid": [
+      -0.42,
+      -0.43,
+      0.79
+    ],
+    "bboxMin": [
+      -0.72,
+      -0.95,
+      0.1
+    ],
+    "bboxMax": [
+      -0.06,
+      0.03,
+      1.52
+    ],
+    "vertexCount": 861,
+    "faceCount": 1476,
+    "connects": [
+      "precuneus_L",
+      "anterior_cingulate_L",
+      "posterior_cingulate_R"
+    ],
+    "color": "#ff7744"
+  },
+  "posterior_cingulate_R": {
+    "name": "Posterior Cingulate (Right)",
+    "file": "regions/posterior_cingulate_R.obj",
+    "lobe": "Limbic",
+    "desc": "Memory, default mode network",
+    "centroid": [
+      0.37,
+      -0.39,
+      0.78
+    ],
+    "bboxMin": [
+      0.01,
+      -0.92,
+      0.1
+    ],
+    "bboxMax": [
+      0.69,
+      0.03,
+      1.5
+    ],
+    "vertexCount": 862,
+    "faceCount": 1483,
+    "connects": [
+      "precuneus_R",
+      "anterior_cingulate_R",
+      "posterior_cingulate_L"
+    ],
+    "color": "#ff7744"
+  },
+  "insula_L": {
+    "name": "Insula (Left)",
+    "file": "regions/insula_L.obj",
+    "lobe": "Limbic",
+    "desc": "Interoception, empathy, disgust",
+    "centroid": [
+      -0.85,
+      0.15,
+      0.09
+    ],
+    "bboxMin": [
+      -1.4,
+      -0.07,
+      -0.51
+    ],
+    "bboxMax": [
+      -0.02,
+      0.69,
+      0.52
+    ],
+    "vertexCount": 467,
+    "faceCount": 763,
+    "connects": [
+      "inferior_frontal_L",
+      "superior_temporal_L",
+      "anterior_cingulate_L",
+      "orbitofrontal_L"
+    ],
+    "color": "#ff7744"
+  },
+  "insula_R": {
+    "name": "Insula (Right)",
+    "file": "regions/insula_R.obj",
+    "lobe": "Limbic",
+    "desc": "Interoception, empathy, disgust",
+    "centroid": [
+      0.9,
+      0.16,
+      0.09
+    ],
+    "bboxMin": [
+      -0.01,
+      -0.06,
+      -0.34
+    ],
+    "bboxMax": [
+      1.45,
+      0.64,
+      0.52
+    ],
+    "vertexCount": 421,
+    "faceCount": 698,
+    "connects": [
+      "inferior_frontal_R",
+      "superior_temporal_R",
+      "anterior_cingulate_R",
+      "orbitofrontal_R"
+    ],
+    "color": "#ff7744"
+  },
+  "cerebellum_L": {
+    "name": "Cerebellum (Left)",
+    "file": "regions/cerebellum_L.obj",
+    "lobe": "Cerebellum",
+    "desc": "Motor coordination, balance, timing",
+    "centroid": [
+      -0.62,
+      -0.53,
+      -1.68
+    ],
+    "bboxMin": [
+      -1.73,
+      -1.75,
+      -2.66
+    ],
+    "bboxMax": [
+      -0.02,
+      0.91,
+      0.12
+    ],
+    "vertexCount": 6927,
+    "faceCount": 13033,
+    "connects": [
+      "precentral_gyrus_L",
+      "cerebellar_vermis",
+      "cerebellum_R"
+    ],
+    "color": "#55ddaa"
+  },
+  "cerebellum_R": {
+    "name": "Cerebellum (Right)",
+    "file": "regions/cerebellum_R.obj",
+    "lobe": "Cerebellum",
+    "desc": "Motor coordination, balance, timing",
+    "centroid": [
+      0.62,
+      -0.54,
+      -1.67
+    ],
+    "bboxMin": [
+      -0.02,
+      -1.84,
+      -2.69
+    ],
+    "bboxMax": [
+      1.75,
+      0.87,
+      0.11
+    ],
+    "vertexCount": 7022,
+    "faceCount": 13249,
+    "connects": [
+      "precentral_gyrus_R",
+      "cerebellar_vermis",
+      "cerebellum_L"
+    ],
+    "color": "#55ddaa"
+  }
+}
