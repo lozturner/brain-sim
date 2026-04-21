@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Brain Simulator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0f; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; color: #e0e0e0; }
+    #canvas-container { width: 100vw; height: 100vh; }
+    canvas { display: block; }
+
+    #ui-panel {
+      position: fixed; top: 0; right: 0; width: 320px; height: 100vh;
+      background: rgba(10, 10, 20, 0.92); border-left: 1px solid rgba(100, 180, 255, 0.15);
+      overflow-y: auto; padding: 20px; backdrop-filter: blur(10px);
+      scrollbar-width: thin; scrollbar-color: #2a3a5a #0a0a1a;
+    }
+    #ui-panel h1 { font-size: 18px; color: #7ab8ff; margin-bottom: 4px; font-weight: 600; }
+    #ui-panel .subtitle { font-size: 11px; color: #556; margin-bottom: 20px; }
+
+    .section-title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+      color: #4a6a9a; margin: 18px 0 10px; padding-bottom: 4px;
+      border-bottom: 1px solid rgba(74, 106, 154, 0.3);
+    }
+
+    .switch-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 8px; margin: 2px 0; border-radius: 6px;
+      transition: background 0.2s; cursor: pointer;
+    }
+    .switch-row:hover { background: rgba(100, 180, 255, 0.06); }
+    .switch-label { font-size: 12px; flex: 1; }
+
+    .toggle {
+      width: 36px; height: 20px; background: #1a2a3a; border-radius: 10px;
+      position: relative; cursor: pointer; transition: background 0.3s;
+      border: 1px solid rgba(100, 180, 255, 0.2);
+    }
+    .toggle.active { background: #1a4a7a; border-color: #4a9aff; }
+    .toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 14px; height: 14px; background: #556; border-radius: 50%;
+      transition: all 0.3s;
+    }
+    .toggle.active::after { left: 18px; background: #6ab4ff; box-shadow: 0 0 8px #4a9aff; }
+
+    .preset-btn {
+      display: block; width: 100%; padding: 8px 12px; margin: 4px 0;
+      background: linear-gradient(135deg, rgba(40, 60, 100, 0.4), rgba(20, 30, 50, 0.6));
+      border: 1px solid rgba(100, 180, 255, 0.15); border-radius: 6px;
+      color: #8ac4ff; font-size: 12px; cursor: pointer; text-align: left;
+      transition: all 0.2s;
+    }
+    .preset-btn:hover {
+      background: linear-gradient(135deg, rgba(50, 80, 140, 0.5), rgba(30, 50, 80, 0.7));
+      border-color: rgba(100, 180, 255, 0.4); transform: translateX(2px);
+    }
+    .preset-btn .desc { font-size: 10px; color: #4a6a8a; margin-top: 2px; }
+
+    .slider-row { padding: 6px 8px; margin: 4px 0; }
+    .slider-row label { font-size: 11px; color: #6a8aba; display: block; margin-bottom: 4px; }
+    .slider-row input[type="range"] {
+      width: 100%; accent-color: #4a9aff; height: 4px;
+    }
+
+    #info-bar {
+      position: fixed; bottom: 0; left: 0; right: 320px;
+      background: rgba(10, 10, 20, 0.9); border-top: 1px solid rgba(100, 180, 255, 0.1);
+      padding: 10px 20px; display: flex; justify-content: space-between; font-size: 11px;
+    }
+    #region-info { color: #7ab8ff; }
+    #activity-info { color: #4a6a8a; }
+
+    /* ─── DOM OVERLAY: inspector-visible brain structure ─── */
+    #dom-overlay {
+      position: fixed; top: 0; left: 0; width: calc(100vw - 320px); height: 100vh;
+      pointer-events: none; z-index: 5; overflow: hidden;
+    }
+    #dom-overlay .lobe-group {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    }
+    #dom-overlay .brain-region {
+      position: absolute; pointer-events: none;
+      border: 1px solid transparent; border-radius: 4px;
+      transition: border-color 0.3s, background 0.3s;
+      min-width: 8px; min-height: 8px;
+    }
+    #dom-overlay .brain-region[data-active="true"] {
+      border-color: rgba(100, 200, 255, 0.4);
+      background: rgba(100, 200, 255, 0.05);
+    }
+    #dom-overlay .brain-region[data-hovered="true"] {
+      border-color: rgba(150, 220, 255, 0.6);
+      background: rgba(150, 220, 255, 0.08);
+    }
+    #dom-overlay .region-label {
+      font-size: 0; /* hidden visually but present in DOM */
+      position: absolute; top: 0; left: 0;
+    }
+    #dom-overlay .connection-ref {
+      display: none; /* pure data, no visual */
+    }
+
+    #tooltip {
+      position: fixed; background: rgba(10, 20, 40, 0.95); color: #9ac4ff;
+      padding: 6px 12px; border-radius: 4px; font-size: 12px; pointer-events: none;
+      border: 1px solid rgba(100, 180, 255, 0.3); display: none; z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+  <script type="module" crossorigin src="/brain-sim/assets/index-CXWWmyfo.js"></script>
+</head>
+<body>
+  <div id="canvas-container"></div>
+  <div id="dom-overlay" aria-label="Brain Region DOM Mirror">
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- BRAIN REGION DOM STRUCTURE                            -->
+    <!-- Auto-generated from FreeSurfer atlas regionData.json  -->
+    <!-- Each div is a real brain region with full metadata    -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+
+    <!-- ── FRONTAL LOBE (11 regions) ── -->
+    <div class="lobe-group" id="lobe-frontal" data-lobe="Frontal" data-region-count="11" aria-label="Frontal Lobe — 11 regions">
+
+      <!-- Frontal Pole -->
+      <div class="brain-region"
+           id="region-frontal_pole"
+           data-region-id="frontal_pole"
+           data-name="Frontal Pole"
+           data-lobe="Frontal"
+           data-desc="Planning, personality, decision making"
+           data-vertices="2075"
+           data-faces="3772"
+           data-centroid="-0.02,1.83,0.28"
+           data-bbox-min="-1.02,1.19,-0.52"
+           data-bbox-max="0.96,2.21,0.95"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="5"
+           aria-label="Frontal Pole — Planning, personality, decision making">
+        <span class="region-label">Frontal Pole</span>
+        <span class="connection-ref" data-connects-to="superior_frontal_L" data-target-name="Superior Frontal (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="superior_frontal_R" data-target-name="Superior Frontal (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="orbitofrontal_L" data-target-name="Orbitofrontal (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="orbitofrontal_R" data-target-name="Orbitofrontal (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_L" data-target-name="Anterior Cingulate (Left)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Superior Frontal (Left) -->
+      <div class="brain-region"
+           id="region-superior_frontal_L"
+           data-region-id="superior_frontal_L"
+           data-name="Superior Frontal (Left)"
+           data-lobe="Frontal"
+           data-desc="Working memory, self-awareness"
+           data-vertices="3828"
+           data-faces="7096"
+           data-centroid="-0.43,0.99,1.53"
+           data-bbox-min="-1.28,0.02,0.69"
+           data-bbox-max="-0.02,2.13,2.44"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="4"
+           aria-label="Superior Frontal (Left) — Working memory, self-awareness">
+        <span class="region-label">Superior Frontal (Left)</span>
+        <span class="connection-ref" data-connects-to="middle_frontal_L" data-target-name="Middle Frontal (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="precentral_gyrus_L" data-target-name="Precentral Gyrus (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_L" data-target-name="Anterior Cingulate (Left)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="superior_frontal_R" data-target-name="Superior Frontal (Right)" data-target-lobe="Frontal"></span>
+      </div>
+
+      <!-- Superior Frontal (Right) -->
+      <div class="brain-region"
+           id="region-superior_frontal_R"
+           data-region-id="superior_frontal_R"
+           data-name="Superior Frontal (Right)"
+           data-lobe="Frontal"
+           data-desc="Working memory, self-awareness"
+           data-vertices="4074"
+           data-faces="7534"
+           data-centroid="0.39,1.02,1.52"
+           data-bbox-min="-0.02,0.02,0.66"
+           data-bbox-max="1.27,2.18,2.34"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="4"
+           aria-label="Superior Frontal (Right) — Working memory, self-awareness">
+        <span class="region-label">Superior Frontal (Right)</span>
+        <span class="connection-ref" data-connects-to="middle_frontal_R" data-target-name="Middle Frontal (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="precentral_gyrus_R" data-target-name="Precentral Gyrus (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_R" data-target-name="Anterior Cingulate (Right)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="superior_frontal_L" data-target-name="Superior Frontal (Left)" data-target-lobe="Frontal"></span>
+      </div>
+
+      <!-- Middle Frontal (Left) -->
+      <div class="brain-region"
+           id="region-middle_frontal_L"
+           data-region-id="middle_frontal_L"
+           data-name="Middle Frontal (Left)"
+           data-lobe="Frontal"
+           data-desc="Attention, executive function"
+           data-vertices="3070"
+           data-faces="5758"
+           data-centroid="-1.21,1.12,1.01"
+           data-bbox-min="-1.96,0.22,0.13"
+           data-bbox-max="-0.39,1.99,1.76"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Middle Frontal (Left) — Attention, executive function">
+        <span class="region-label">Middle Frontal (Left)</span>
+        <span class="connection-ref" data-connects-to="inferior_frontal_L" data-target-name="Inferior Frontal (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="precentral_gyrus_L" data-target-name="Precentral Gyrus (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="inferior_parietal_L" data-target-name="Inferior Parietal (Left)" data-target-lobe="Parietal"></span>
+      </div>
+
+      <!-- Middle Frontal (Right) -->
+      <div class="brain-region"
+           id="region-middle_frontal_R"
+           data-region-id="middle_frontal_R"
+           data-name="Middle Frontal (Right)"
+           data-lobe="Frontal"
+           data-desc="Attention, executive function"
+           data-vertices="3287"
+           data-faces="6101"
+           data-centroid="1.18,1.15,0.96"
+           data-bbox-min="0.49,0.19,0.12"
+           data-bbox-max="1.93,2.03,1.78"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Middle Frontal (Right) — Attention, executive function">
+        <span class="region-label">Middle Frontal (Right)</span>
+        <span class="connection-ref" data-connects-to="inferior_frontal_R" data-target-name="Inferior Frontal (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="precentral_gyrus_R" data-target-name="Precentral Gyrus (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="inferior_parietal_R" data-target-name="Inferior Parietal (Right)" data-target-lobe="Parietal"></span>
+      </div>
+
+      <!-- Inferior Frontal (Left) -->
+      <div class="brain-region"
+           id="region-inferior_frontal_L"
+           data-region-id="inferior_frontal_L"
+           data-name="Inferior Frontal (Left)"
+           data-lobe="Frontal"
+           data-desc="Broca's area - speech production"
+           data-vertices="2697"
+           data-faces="5103"
+           data-centroid="-1.51,0.93,0.2"
+           data-bbox-min="-2.02,0.27,-0.63"
+           data-bbox-max="-0.99,1.72,0.94"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Inferior Frontal (Left) — Broca's area - speech production">
+        <span class="region-label">Inferior Frontal (Left)</span>
+        <span class="connection-ref" data-connects-to="superior_temporal_L" data-target-name="Superior Temporal (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="insula_L" data-target-name="Insula (Left)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="precentral_gyrus_L" data-target-name="Precentral Gyrus (Left)" data-target-lobe="Frontal"></span>
+      </div>
+
+      <!-- Inferior Frontal (Right) -->
+      <div class="brain-region"
+           id="region-inferior_frontal_R"
+           data-region-id="inferior_frontal_R"
+           data-name="Inferior Frontal (Right)"
+           data-lobe="Frontal"
+           data-desc="Prosody, emotional language"
+           data-vertices="2582"
+           data-faces="4804"
+           data-centroid="1.51,0.92,0.2"
+           data-bbox-min="0.92,0.27,-0.63"
+           data-bbox-max="2.04,1.71,0.94"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Inferior Frontal (Right) — Prosody, emotional language">
+        <span class="region-label">Inferior Frontal (Right)</span>
+        <span class="connection-ref" data-connects-to="superior_temporal_R" data-target-name="Superior Temporal (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="insula_R" data-target-name="Insula (Right)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="precentral_gyrus_R" data-target-name="Precentral Gyrus (Right)" data-target-lobe="Frontal"></span>
+      </div>
+
+      <!-- Precentral Gyrus (Left) -->
+      <div class="brain-region"
+           id="region-precentral_gyrus_L"
+           data-region-id="precentral_gyrus_L"
+           data-name="Precentral Gyrus (Left)"
+           data-lobe="Frontal"
+           data-desc="Primary motor cortex (left body)"
+           data-vertices="4567"
+           data-faces="8522"
+           data-centroid="-0.76,0.1,1.83"
+           data-bbox-min="-1.93,-0.4,0.97"
+           data-bbox-max="-0.02,0.79,2.7"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Precentral Gyrus (Left) — Primary motor cortex (left body)">
+        <span class="region-label">Precentral Gyrus (Left)</span>
+        <span class="connection-ref" data-connects-to="postcentral_gyrus_L" data-target-name="Postcentral Gyrus (Left)" data-target-lobe="Parietal"></span>
+        <span class="connection-ref" data-connects-to="superior_frontal_L" data-target-name="Superior Frontal (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="cerebellum_L" data-target-name="Cerebellum (Left)" data-target-lobe="Cerebellum"></span>
+      </div>
+
+      <!-- Precentral Gyrus (Right) -->
+      <div class="brain-region"
+           id="region-precentral_gyrus_R"
+           data-region-id="precentral_gyrus_R"
+           data-name="Precentral Gyrus (Right)"
+           data-lobe="Frontal"
+           data-desc="Primary motor cortex (right body)"
+           data-vertices="5214"
+           data-faces="9698"
+           data-centroid="0.72,0.09,1.76"
+           data-bbox-min="-0.02,-0.4,0.86"
+           data-bbox-max="1.9,0.8,2.66"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Precentral Gyrus (Right) — Primary motor cortex (right body)">
+        <span class="region-label">Precentral Gyrus (Right)</span>
+        <span class="connection-ref" data-connects-to="postcentral_gyrus_R" data-target-name="Postcentral Gyrus (Right)" data-target-lobe="Parietal"></span>
+        <span class="connection-ref" data-connects-to="superior_frontal_R" data-target-name="Superior Frontal (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="cerebellum_R" data-target-name="Cerebellum (Right)" data-target-lobe="Cerebellum"></span>
+      </div>
+
+      <!-- Orbitofrontal (Left) -->
+      <div class="brain-region"
+           id="region-orbitofrontal_L"
+           data-region-id="orbitofrontal_L"
+           data-name="Orbitofrontal (Left)"
+           data-lobe="Frontal"
+           data-desc="Reward, emotion, social behaviour"
+           data-vertices="2929"
+           data-faces="5411"
+           data-centroid="-0.56,1.35,-0.72"
+           data-bbox-min="-1.53,0.44,-2.02"
+           data-bbox-max="-0.02,2.05,0.14"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Orbitofrontal (Left) — Reward, emotion, social behaviour">
+        <span class="region-label">Orbitofrontal (Left)</span>
+        <span class="connection-ref" data-connects-to="temporal_pole_L" data-target-name="Temporal Pole (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="insula_L" data-target-name="Insula (Left)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_L" data-target-name="Anterior Cingulate (Left)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Orbitofrontal (Right) -->
+      <div class="brain-region"
+           id="region-orbitofrontal_R"
+           data-region-id="orbitofrontal_R"
+           data-name="Orbitofrontal (Right)"
+           data-lobe="Frontal"
+           data-desc="Reward, emotion, social behaviour"
+           data-vertices="3038"
+           data-faces="5655"
+           data-centroid="0.52,1.34,-0.68"
+           data-bbox-min="-0.02,0.48,-1.96"
+           data-bbox-max="1.54,2.02,0.16"
+           data-color="#4488ff"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Orbitofrontal (Right) — Reward, emotion, social behaviour">
+        <span class="region-label">Orbitofrontal (Right)</span>
+        <span class="connection-ref" data-connects-to="temporal_pole_R" data-target-name="Temporal Pole (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="insula_R" data-target-name="Insula (Right)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_R" data-target-name="Anterior Cingulate (Right)" data-target-lobe="Limbic"></span>
+      </div>
+
+    </div>
+
+    <!-- ── PARIETAL LOBE (6 regions) ── -->
+    <div class="lobe-group" id="lobe-parietal" data-lobe="Parietal" data-region-count="6" aria-label="Parietal Lobe — 6 regions">
+
+      <!-- Postcentral Gyrus (Left) -->
+      <div class="brain-region"
+           id="region-postcentral_gyrus_L"
+           data-region-id="postcentral_gyrus_L"
+           data-name="Postcentral Gyrus (Left)"
+           data-lobe="Parietal"
+           data-desc="Primary somatosensory cortex"
+           data-vertices="2031"
+           data-faces="3621"
+           data-centroid="-0.93,-0.49,1.95"
+           data-bbox-min="-1.8,-0.91,1.22"
+           data-bbox-max="-0.12,-0.09,2.7"
+           data-color="#44cc88"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="4"
+           aria-label="Postcentral Gyrus (Left) — Primary somatosensory cortex">
+        <span class="region-label">Postcentral Gyrus (Left)</span>
+        <span class="connection-ref" data-connects-to="precentral_gyrus_L" data-target-name="Precentral Gyrus (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="superior_parietal_L" data-target-name="Superior Parietal (Left)" data-target-lobe="Parietal"></span>
+        <span class="connection-ref" data-connects-to="inferior_parietal_L" data-target-name="Inferior Parietal (Left)" data-target-lobe="Parietal"></span>
+        <span class="connection-ref" data-connects-to="insula_L" data-target-name="Insula (Left)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Postcentral Gyrus (Right) -->
+      <div class="brain-region"
+           id="region-postcentral_gyrus_R"
+           data-region-id="postcentral_gyrus_R"
+           data-name="Postcentral Gyrus (Right)"
+           data-lobe="Parietal"
+           data-desc="Primary somatosensory cortex"
+           data-vertices="2111"
+           data-faces="3757"
+           data-centroid="0.89,-0.5,1.93"
+           data-bbox-min="0.11,-0.88,1.14"
+           data-bbox-max="1.75,-0.1,2.65"
+           data-color="#44cc88"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="4"
+           aria-label="Postcentral Gyrus (Right) — Primary somatosensory cortex">
+        <span class="region-label">Postcentral Gyrus (Right)</span>
+        <span class="connection-ref" data-connects-to="precentral_gyrus_R" data-target-name="Precentral Gyrus (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="superior_parietal_R" data-target-name="Superior Parietal (Right)" data-target-lobe="Parietal"></span>
+        <span class="connection-ref" data-connects-to="inferior_parietal_R" data-target-name="Inferior Parietal (Right)" data-target-lobe="Parietal"></span>
+        <span class="connection-ref" data-connects-to="insula_R" data-target-name="Insula (Right)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Superior Parietal (Left) -->
+      <div class="brain-region"
+           id="region-superior_parietal_L"
+           data-region-id="superior_parietal_L"
+           data-name="Superior Parietal (Left)"
+           data-lobe="Parietal"
+           data-desc="Spatial orientation, attention"
+           data-vertices="765"
+           data-faces="1287"
+           data-centroid="-0.38,-0.69,2.15"
+           data-bbox-min="-0.97,-0.96,1.37"
+           data-bbox-max="-0.02,-0.4,2.68"
+           data-color="#44cc88"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Superior Parietal (Left) — Spatial orientation, attention">
+        <span class="region-label">Superior Parietal (Left)</span>
+        <span class="connection-ref" data-connects-to="inferior_parietal_L" data-target-name="Inferior Parietal (Left)" data-target-lobe="Parietal"></span>
+        <span class="connection-ref" data-connects-to="precuneus_L" data-target-name="precuneus_L" data-target-lobe=""></span>
+        <span class="connection-ref" data-connects-to="lateral_occipital_L" data-target-name="Lateral Occipital (Left)" data-target-lobe="Occipital"></span>
+      </div>
+
+      <!-- Superior Parietal (Right) -->
+      <div class="brain-region"
+           id="region-superior_parietal_R"
+           data-region-id="superior_parietal_R"
+           data-name="Superior Parietal (Right)"
+           data-lobe="Parietal"
+           data-desc="Spatial orientation, attention"
+           data-vertices="538"
+           data-faces="851"
+           data-centroid="0.33,-0.65,2.05"
+           data-bbox-min="-0.02,-0.89,1.45"
+           data-bbox-max="0.85,-0.4,2.58"
+           data-color="#44cc88"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Superior Parietal (Right) — Spatial orientation, attention">
+        <span class="region-label">Superior Parietal (Right)</span>
+        <span class="connection-ref" data-connects-to="inferior_parietal_R" data-target-name="Inferior Parietal (Right)" data-target-lobe="Parietal"></span>
+        <span class="connection-ref" data-connects-to="precuneus_R" data-target-name="precuneus_R" data-target-lobe=""></span>
+        <span class="connection-ref" data-connects-to="lateral_occipital_R" data-target-name="Lateral Occipital (Right)" data-target-lobe="Occipital"></span>
+      </div>
+
+      <!-- Inferior Parietal (Left) -->
+      <div class="brain-region"
+           id="region-inferior_parietal_L"
+           data-region-id="inferior_parietal_L"
+           data-name="Inferior Parietal (Left)"
+           data-lobe="Parietal"
+           data-desc="Language, math, body image"
+           data-vertices="2529"
+           data-faces="4737"
+           data-centroid="-1.45,-0.73,1.04"
+           data-bbox-min="-2.17,-1.23,0.43"
+           data-bbox-max="-0.64,0.02,1.81"
+           data-color="#44cc88"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Inferior Parietal (Left) — Language, math, body image">
+        <span class="region-label">Inferior Parietal (Left)</span>
+        <span class="connection-ref" data-connects-to="superior_temporal_L" data-target-name="Superior Temporal (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="middle_temporal_L" data-target-name="Middle Temporal (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="postcentral_gyrus_L" data-target-name="Postcentral Gyrus (Left)" data-target-lobe="Parietal"></span>
+      </div>
+
+      <!-- Inferior Parietal (Right) -->
+      <div class="brain-region"
+           id="region-inferior_parietal_R"
+           data-region-id="inferior_parietal_R"
+           data-name="Inferior Parietal (Right)"
+           data-lobe="Parietal"
+           data-desc="Spatial awareness, attention"
+           data-vertices="2431"
+           data-faces="4522"
+           data-centroid="1.41,-0.74,1.04"
+           data-bbox-min="0.62,-1.28,0.45"
+           data-bbox-max="2.08,0.04,1.86"
+           data-color="#44cc88"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Inferior Parietal (Right) — Spatial awareness, attention">
+        <span class="region-label">Inferior Parietal (Right)</span>
+        <span class="connection-ref" data-connects-to="superior_temporal_R" data-target-name="Superior Temporal (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="middle_temporal_R" data-target-name="Middle Temporal (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="postcentral_gyrus_R" data-target-name="Postcentral Gyrus (Right)" data-target-lobe="Parietal"></span>
+      </div>
+
+    </div>
+
+    <!-- ── TEMPORAL LOBE (10 regions) ── -->
+    <div class="lobe-group" id="lobe-temporal" data-lobe="Temporal" data-region-count="10" aria-label="Temporal Lobe — 10 regions">
+
+      <!-- Superior Temporal (Left) -->
+      <div class="brain-region"
+           id="region-superior_temporal_L"
+           data-region-id="superior_temporal_L"
+           data-name="Superior Temporal (Left)"
+           data-lobe="Temporal"
+           data-desc="Wernicke's area - language comprehension"
+           data-vertices="4567"
+           data-faces="8369"
+           data-centroid="-1.52,-0.11,0.17"
+           data-bbox-min="-2.18,-0.95,-1"
+           data-bbox-max="-0.02,0.92,1.1"
+           data-color="#eeaa33"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Superior Temporal (Left) — Wernicke's area - language comprehension">
+        <span class="region-label">Superior Temporal (Left)</span>
+        <span class="connection-ref" data-connects-to="middle_temporal_L" data-target-name="Middle Temporal (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="inferior_frontal_L" data-target-name="Inferior Frontal (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="insula_L" data-target-name="Insula (Left)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Superior Temporal (Right) -->
+      <div class="brain-region"
+           id="region-superior_temporal_R"
+           data-region-id="superior_temporal_R"
+           data-name="Superior Temporal (Right)"
+           data-lobe="Temporal"
+           data-desc="Music, prosody, voice recognition"
+           data-vertices="4468"
+           data-faces="8196"
+           data-centroid="1.57,-0.09,0.18"
+           data-bbox-min="0,-0.93,-1.01"
+           data-bbox-max="2.15,0.88,1.1"
+           data-color="#eeaa33"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Superior Temporal (Right) — Music, prosody, voice recognition">
+        <span class="region-label">Superior Temporal (Right)</span>
+        <span class="connection-ref" data-connects-to="middle_temporal_R" data-target-name="Middle Temporal (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="inferior_frontal_R" data-target-name="Inferior Frontal (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="insula_R" data-target-name="Insula (Right)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Middle Temporal (Left) -->
+      <div class="brain-region"
+           id="region-middle_temporal_L"
+           data-region-id="middle_temporal_L"
+           data-name="Middle Temporal (Left)"
+           data-lobe="Temporal"
+           data-desc="Semantic processing, reading"
+           data-vertices="2416"
+           data-faces="4283"
+           data-centroid="-1.63,-0.58,-0.35"
+           data-bbox-min="-2.15,-1.51,-1.6"
+           data-bbox-max="-0.79,0.42,0.56"
+           data-color="#eeaa33"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Middle Temporal (Left) — Semantic processing, reading">
+        <span class="region-label">Middle Temporal (Left)</span>
+        <span class="connection-ref" data-connects-to="inferior_temporal_L" data-target-name="Inferior Temporal (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="superior_temporal_L" data-target-name="Superior Temporal (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="fusiform_gyrus_L" data-target-name="Fusiform Gyrus (Left)" data-target-lobe="Temporal"></span>
+      </div>
+
+      <!-- Middle Temporal (Right) -->
+      <div class="brain-region"
+           id="region-middle_temporal_R"
+           data-region-id="middle_temporal_R"
+           data-name="Middle Temporal (Right)"
+           data-lobe="Temporal"
+           data-desc="Face recognition, visual processing"
+           data-vertices="2853"
+           data-faces="5074"
+           data-centroid="1.63,-0.62,-0.33"
+           data-bbox-min="0.74,-1.55,-1.62"
+           data-bbox-max="2.15,0.43,0.57"
+           data-color="#eeaa33"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Middle Temporal (Right) — Face recognition, visual processing">
+        <span class="region-label">Middle Temporal (Right)</span>
+        <span class="connection-ref" data-connects-to="inferior_temporal_R" data-target-name="Inferior Temporal (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="superior_temporal_R" data-target-name="Superior Temporal (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="fusiform_gyrus_R" data-target-name="Fusiform Gyrus (Right)" data-target-lobe="Temporal"></span>
+      </div>
+
+      <!-- Inferior Temporal (Left) -->
+      <div class="brain-region"
+           id="region-inferior_temporal_L"
+           data-region-id="inferior_temporal_L"
+           data-name="Inferior Temporal (Left)"
+           data-lobe="Temporal"
+           data-desc="Object recognition, visual memory"
+           data-vertices="1605"
+           data-faces="2838"
+           data-centroid="-1.41,-0.7,-0.96"
+           data-bbox-min="-1.86,-1.6,-1.63"
+           data-bbox-max="-0.89,-0.03,-0.23"
+           data-color="#eeaa33"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Inferior Temporal (Left) — Object recognition, visual memory">
+        <span class="region-label">Inferior Temporal (Left)</span>
+        <span class="connection-ref" data-connects-to="fusiform_gyrus_L" data-target-name="Fusiform Gyrus (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="temporal_pole_L" data-target-name="Temporal Pole (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="middle_temporal_L" data-target-name="Middle Temporal (Left)" data-target-lobe="Temporal"></span>
+      </div>
+
+      <!-- Inferior Temporal (Right) -->
+      <div class="brain-region"
+           id="region-inferior_temporal_R"
+           data-region-id="inferior_temporal_R"
+           data-name="Inferior Temporal (Right)"
+           data-lobe="Temporal"
+           data-desc="Object recognition, visual memory"
+           data-vertices="1683"
+           data-faces="3017"
+           data-centroid="1.43,-0.72,-0.99"
+           data-bbox-min="0.93,-1.61,-1.65"
+           data-bbox-max="1.9,-0.07,-0.24"
+           data-color="#eeaa33"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Inferior Temporal (Right) — Object recognition, visual memory">
+        <span class="region-label">Inferior Temporal (Right)</span>
+        <span class="connection-ref" data-connects-to="fusiform_gyrus_R" data-target-name="Fusiform Gyrus (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="temporal_pole_R" data-target-name="Temporal Pole (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="middle_temporal_R" data-target-name="Middle Temporal (Right)" data-target-lobe="Temporal"></span>
+      </div>
+
+      <!-- Temporal Pole (Left) -->
+      <div class="brain-region"
+           id="region-temporal_pole_L"
+           data-region-id="temporal_pole_L"
+           data-name="Temporal Pole (Left)"
+           data-lobe="Temporal"
+           data-desc="Emotion, social cognition"
+           data-vertices="4620"
+           data-faces="8673"
+           data-centroid="-0.95,0.61,-1.38"
+           data-bbox-min="-1.87,-0.14,-2.3"
+           data-bbox-max="-0.02,1.34,-0.5"
+           data-color="#eeaa33"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Temporal Pole (Left) — Emotion, social cognition">
+        <span class="region-label">Temporal Pole (Left)</span>
+        <span class="connection-ref" data-connects-to="orbitofrontal_L" data-target-name="Orbitofrontal (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="inferior_temporal_L" data-target-name="Inferior Temporal (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="insula_L" data-target-name="Insula (Left)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Temporal Pole (Right) -->
+      <div class="brain-region"
+           id="region-temporal_pole_R"
+           data-region-id="temporal_pole_R"
+           data-name="Temporal Pole (Right)"
+           data-lobe="Temporal"
+           data-desc="Emotion, social cognition"
+           data-vertices="4626"
+           data-faces="8723"
+           data-centroid="0.88,0.64,-1.37"
+           data-bbox-min="-0.02,-0.15,-2.31"
+           data-bbox-max="1.85,1.3,-0.44"
+           data-color="#eeaa33"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Temporal Pole (Right) — Emotion, social cognition">
+        <span class="region-label">Temporal Pole (Right)</span>
+        <span class="connection-ref" data-connects-to="orbitofrontal_R" data-target-name="Orbitofrontal (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="inferior_temporal_R" data-target-name="Inferior Temporal (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="insula_R" data-target-name="Insula (Right)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Fusiform Gyrus (Left) -->
+      <div class="brain-region"
+           id="region-fusiform_gyrus_L"
+           data-region-id="fusiform_gyrus_L"
+           data-name="Fusiform Gyrus (Left)"
+           data-lobe="Temporal"
+           data-desc="Face and word recognition"
+           data-vertices="1211"
+           data-faces="2138"
+           data-centroid="-0.83,-1.02,-0.39"
+           data-bbox-min="-1.35,-1.6,-0.97"
+           data-bbox-max="-0.36,-0.63,0.16"
+           data-color="#eeaa33"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Fusiform Gyrus (Left) — Face and word recognition">
+        <span class="region-label">Fusiform Gyrus (Left)</span>
+        <span class="connection-ref" data-connects-to="lingual_gyrus_L" data-target-name="Lingual Gyrus (Left)" data-target-lobe="Occipital"></span>
+        <span class="connection-ref" data-connects-to="inferior_temporal_L" data-target-name="Inferior Temporal (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="lateral_occipital_L" data-target-name="Lateral Occipital (Left)" data-target-lobe="Occipital"></span>
+      </div>
+
+      <!-- Fusiform Gyrus (Right) -->
+      <div class="brain-region"
+           id="region-fusiform_gyrus_R"
+           data-region-id="fusiform_gyrus_R"
+           data-name="Fusiform Gyrus (Right)"
+           data-lobe="Temporal"
+           data-desc="Face and word recognition"
+           data-vertices="1191"
+           data-faces="2120"
+           data-centroid="0.81,-1.01,-0.4"
+           data-bbox-min="0.32,-1.61,-0.96"
+           data-bbox-max="1.31,-0.58,0.22"
+           data-color="#eeaa33"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Fusiform Gyrus (Right) — Face and word recognition">
+        <span class="region-label">Fusiform Gyrus (Right)</span>
+        <span class="connection-ref" data-connects-to="lingual_gyrus_R" data-target-name="Lingual Gyrus (Right)" data-target-lobe="Occipital"></span>
+        <span class="connection-ref" data-connects-to="inferior_temporal_R" data-target-name="Inferior Temporal (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="lateral_occipital_R" data-target-name="Lateral Occipital (Right)" data-target-lobe="Occipital"></span>
+      </div>
+
+    </div>
+
+    <!-- ── OCCIPITAL LOBE (4 regions) ── -->
+    <div class="lobe-group" id="lobe-occipital" data-lobe="Occipital" data-region-count="4" aria-label="Occipital Lobe — 4 regions">
+
+      <!-- Lingual Gyrus (Left) -->
+      <div class="brain-region"
+           id="region-lingual_gyrus_L"
+           data-region-id="lingual_gyrus_L"
+           data-name="Lingual Gyrus (Left)"
+           data-lobe="Occipital"
+           data-desc="Visual processing, colour perception"
+           data-vertices="164"
+           data-faces="236"
+           data-centroid="-0.56,-1.24,-0.14"
+           data-bbox-min="-0.91,-1.71,-0.5"
+           data-bbox-max="-0.05,-0.81,0.25"
+           data-color="#cc44aa"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Lingual Gyrus (Left) — Visual processing, colour perception">
+        <span class="region-label">Lingual Gyrus (Left)</span>
+        <span class="connection-ref" data-connects-to="calcarine_L" data-target-name="calcarine_L" data-target-lobe=""></span>
+        <span class="connection-ref" data-connects-to="fusiform_gyrus_L" data-target-name="Fusiform Gyrus (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="cuneus_L" data-target-name="cuneus_L" data-target-lobe=""></span>
+      </div>
+
+      <!-- Lingual Gyrus (Right) -->
+      <div class="brain-region"
+           id="region-lingual_gyrus_R"
+           data-region-id="lingual_gyrus_R"
+           data-name="Lingual Gyrus (Right)"
+           data-lobe="Occipital"
+           data-desc="Visual processing, colour perception"
+           data-vertices="45"
+           data-faces="49"
+           data-centroid="0.54,-1.27,-0.18"
+           data-bbox-min="0.07,-1.69,-0.42"
+           data-bbox-max="0.89,-0.82,0.06"
+           data-color="#cc44aa"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Lingual Gyrus (Right) — Visual processing, colour perception">
+        <span class="region-label">Lingual Gyrus (Right)</span>
+        <span class="connection-ref" data-connects-to="calcarine_R" data-target-name="calcarine_R" data-target-lobe=""></span>
+        <span class="connection-ref" data-connects-to="fusiform_gyrus_R" data-target-name="Fusiform Gyrus (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="cuneus_R" data-target-name="cuneus_R" data-target-lobe=""></span>
+      </div>
+
+      <!-- Lateral Occipital (Left) -->
+      <div class="brain-region"
+           id="region-lateral_occipital_L"
+           data-region-id="lateral_occipital_L"
+           data-name="Lateral Occipital (Left)"
+           data-lobe="Occipital"
+           data-desc="Object recognition, motion detection"
+           data-vertices="450"
+           data-faces="739"
+           data-centroid="-1.08,-1.27,0.12"
+           data-bbox-min="-1.64,-1.68,-0.32"
+           data-bbox-max="-0.57,-0.9,0.54"
+           data-color="#cc44aa"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Lateral Occipital (Left) — Object recognition, motion detection">
+        <span class="region-label">Lateral Occipital (Left)</span>
+        <span class="connection-ref" data-connects-to="fusiform_gyrus_L" data-target-name="Fusiform Gyrus (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="inferior_parietal_L" data-target-name="Inferior Parietal (Left)" data-target-lobe="Parietal"></span>
+        <span class="connection-ref" data-connects-to="middle_temporal_L" data-target-name="Middle Temporal (Left)" data-target-lobe="Temporal"></span>
+      </div>
+
+      <!-- Lateral Occipital (Right) -->
+      <div class="brain-region"
+           id="region-lateral_occipital_R"
+           data-region-id="lateral_occipital_R"
+           data-name="Lateral Occipital (Right)"
+           data-lobe="Occipital"
+           data-desc="Object recognition, motion detection"
+           data-vertices="479"
+           data-faces="788"
+           data-centroid="1.1,-1.31,0.1"
+           data-bbox-min="0.56,-1.77,-0.35"
+           data-bbox-max="1.66,-0.88,0.57"
+           data-color="#cc44aa"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Lateral Occipital (Right) — Object recognition, motion detection">
+        <span class="region-label">Lateral Occipital (Right)</span>
+        <span class="connection-ref" data-connects-to="fusiform_gyrus_R" data-target-name="Fusiform Gyrus (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="inferior_parietal_R" data-target-name="Inferior Parietal (Right)" data-target-lobe="Parietal"></span>
+        <span class="connection-ref" data-connects-to="middle_temporal_R" data-target-name="Middle Temporal (Right)" data-target-lobe="Temporal"></span>
+      </div>
+
+    </div>
+
+    <!-- ── LIMBIC LOBE (6 regions) ── -->
+    <div class="lobe-group" id="lobe-limbic" data-lobe="Limbic" data-region-count="6" aria-label="Limbic Lobe — 6 regions">
+
+      <!-- Anterior Cingulate (Left) -->
+      <div class="brain-region"
+           id="region-anterior_cingulate_L"
+           data-region-id="anterior_cingulate_L"
+           data-name="Anterior Cingulate (Left)"
+           data-lobe="Limbic"
+           data-desc="Error detection, emotion, pain"
+           data-vertices="1730"
+           data-faces="3157"
+           data-centroid="-0.18,0.85,0.44"
+           data-bbox-min="-0.69,-0.01,-0.46"
+           data-bbox-max="-0.02,1.61,0.97"
+           data-color="#ff7744"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="4"
+           aria-label="Anterior Cingulate (Left) — Error detection, emotion, pain">
+        <span class="region-label">Anterior Cingulate (Left)</span>
+        <span class="connection-ref" data-connects-to="posterior_cingulate_L" data-target-name="Posterior Cingulate (Left)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="orbitofrontal_L" data-target-name="Orbitofrontal (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="insula_L" data-target-name="Insula (Left)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_R" data-target-name="Anterior Cingulate (Right)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Anterior Cingulate (Right) -->
+      <div class="brain-region"
+           id="region-anterior_cingulate_R"
+           data-region-id="anterior_cingulate_R"
+           data-name="Anterior Cingulate (Right)"
+           data-lobe="Limbic"
+           data-desc="Error detection, emotion, pain"
+           data-vertices="1630"
+           data-faces="3017"
+           data-centroid="0.15,0.86,0.44"
+           data-bbox-min="-0.02,-0.01,-0.33"
+           data-bbox-max="0.46,1.6,0.97"
+           data-color="#ff7744"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="4"
+           aria-label="Anterior Cingulate (Right) — Error detection, emotion, pain">
+        <span class="region-label">Anterior Cingulate (Right)</span>
+        <span class="connection-ref" data-connects-to="posterior_cingulate_R" data-target-name="Posterior Cingulate (Right)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="orbitofrontal_R" data-target-name="Orbitofrontal (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="insula_R" data-target-name="Insula (Right)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_L" data-target-name="Anterior Cingulate (Left)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Posterior Cingulate (Left) -->
+      <div class="brain-region"
+           id="region-posterior_cingulate_L"
+           data-region-id="posterior_cingulate_L"
+           data-name="Posterior Cingulate (Left)"
+           data-lobe="Limbic"
+           data-desc="Memory, default mode network"
+           data-vertices="861"
+           data-faces="1476"
+           data-centroid="-0.42,-0.43,0.79"
+           data-bbox-min="-0.72,-0.95,0.1"
+           data-bbox-max="-0.06,0.03,1.52"
+           data-color="#ff7744"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Posterior Cingulate (Left) — Memory, default mode network">
+        <span class="region-label">Posterior Cingulate (Left)</span>
+        <span class="connection-ref" data-connects-to="precuneus_L" data-target-name="precuneus_L" data-target-lobe=""></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_L" data-target-name="Anterior Cingulate (Left)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="posterior_cingulate_R" data-target-name="Posterior Cingulate (Right)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Posterior Cingulate (Right) -->
+      <div class="brain-region"
+           id="region-posterior_cingulate_R"
+           data-region-id="posterior_cingulate_R"
+           data-name="Posterior Cingulate (Right)"
+           data-lobe="Limbic"
+           data-desc="Memory, default mode network"
+           data-vertices="862"
+           data-faces="1483"
+           data-centroid="0.37,-0.39,0.78"
+           data-bbox-min="0.01,-0.92,0.1"
+           data-bbox-max="0.69,0.03,1.5"
+           data-color="#ff7744"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Posterior Cingulate (Right) — Memory, default mode network">
+        <span class="region-label">Posterior Cingulate (Right)</span>
+        <span class="connection-ref" data-connects-to="precuneus_R" data-target-name="precuneus_R" data-target-lobe=""></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_R" data-target-name="Anterior Cingulate (Right)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="posterior_cingulate_L" data-target-name="Posterior Cingulate (Left)" data-target-lobe="Limbic"></span>
+      </div>
+
+      <!-- Insula (Left) -->
+      <div class="brain-region"
+           id="region-insula_L"
+           data-region-id="insula_L"
+           data-name="Insula (Left)"
+           data-lobe="Limbic"
+           data-desc="Interoception, empathy, disgust"
+           data-vertices="467"
+           data-faces="763"
+           data-centroid="-0.85,0.15,0.09"
+           data-bbox-min="-1.4,-0.07,-0.51"
+           data-bbox-max="-0.02,0.69,0.52"
+           data-color="#ff7744"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="4"
+           aria-label="Insula (Left) — Interoception, empathy, disgust">
+        <span class="region-label">Insula (Left)</span>
+        <span class="connection-ref" data-connects-to="inferior_frontal_L" data-target-name="Inferior Frontal (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="superior_temporal_L" data-target-name="Superior Temporal (Left)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_L" data-target-name="Anterior Cingulate (Left)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="orbitofrontal_L" data-target-name="Orbitofrontal (Left)" data-target-lobe="Frontal"></span>
+      </div>
+
+      <!-- Insula (Right) -->
+      <div class="brain-region"
+           id="region-insula_R"
+           data-region-id="insula_R"
+           data-name="Insula (Right)"
+           data-lobe="Limbic"
+           data-desc="Interoception, empathy, disgust"
+           data-vertices="421"
+           data-faces="698"
+           data-centroid="0.9,0.16,0.09"
+           data-bbox-min="-0.01,-0.06,-0.34"
+           data-bbox-max="1.45,0.64,0.52"
+           data-color="#ff7744"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="4"
+           aria-label="Insula (Right) — Interoception, empathy, disgust">
+        <span class="region-label">Insula (Right)</span>
+        <span class="connection-ref" data-connects-to="inferior_frontal_R" data-target-name="Inferior Frontal (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="superior_temporal_R" data-target-name="Superior Temporal (Right)" data-target-lobe="Temporal"></span>
+        <span class="connection-ref" data-connects-to="anterior_cingulate_R" data-target-name="Anterior Cingulate (Right)" data-target-lobe="Limbic"></span>
+        <span class="connection-ref" data-connects-to="orbitofrontal_R" data-target-name="Orbitofrontal (Right)" data-target-lobe="Frontal"></span>
+      </div>
+
+    </div>
+
+    <!-- ── CEREBELLUM LOBE (2 regions) ── -->
+    <div class="lobe-group" id="lobe-cerebellum" data-lobe="Cerebellum" data-region-count="2" aria-label="Cerebellum Lobe — 2 regions">
+
+      <!-- Cerebellum (Left) -->
+      <div class="brain-region"
+           id="region-cerebellum_L"
+           data-region-id="cerebellum_L"
+           data-name="Cerebellum (Left)"
+           data-lobe="Cerebellum"
+           data-desc="Motor coordination, balance, timing"
+           data-vertices="6927"
+           data-faces="13033"
+           data-centroid="-0.62,-0.53,-1.68"
+           data-bbox-min="-1.73,-1.75,-2.66"
+           data-bbox-max="-0.02,0.91,0.12"
+           data-color="#55ddaa"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Cerebellum (Left) — Motor coordination, balance, timing">
+        <span class="region-label">Cerebellum (Left)</span>
+        <span class="connection-ref" data-connects-to="precentral_gyrus_L" data-target-name="Precentral Gyrus (Left)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="cerebellar_vermis" data-target-name="cerebellar_vermis" data-target-lobe=""></span>
+        <span class="connection-ref" data-connects-to="cerebellum_R" data-target-name="Cerebellum (Right)" data-target-lobe="Cerebellum"></span>
+      </div>
+
+      <!-- Cerebellum (Right) -->
+      <div class="brain-region"
+           id="region-cerebellum_R"
+           data-region-id="cerebellum_R"
+           data-name="Cerebellum (Right)"
+           data-lobe="Cerebellum"
+           data-desc="Motor coordination, balance, timing"
+           data-vertices="7022"
+           data-faces="13249"
+           data-centroid="0.62,-0.54,-1.67"
+           data-bbox-min="-0.02,-1.84,-2.69"
+           data-bbox-max="1.75,0.87,0.11"
+           data-color="#55ddaa"
+           data-active="false"
+           data-hovered="false"
+           data-activation="0"
+           data-connection-count="3"
+           aria-label="Cerebellum (Right) — Motor coordination, balance, timing">
+        <span class="region-label">Cerebellum (Right)</span>
+        <span class="connection-ref" data-connects-to="precentral_gyrus_R" data-target-name="Precentral Gyrus (Right)" data-target-lobe="Frontal"></span>
+        <span class="connection-ref" data-connects-to="cerebellar_vermis" data-target-name="cerebellar_vermis" data-target-lobe=""></span>
+        <span class="connection-ref" data-connects-to="cerebellum_L" data-target-name="Cerebellum (Left)" data-target-lobe="Cerebellum"></span>
+      </div>
+
+    </div>
+
+  </div>
+  <div id="ui-panel"></div>
+  <div id="info-bar">
+    <span id="region-info">Hover over a brain region to inspect</span>
+    <span id="activity-info">Active regions: 0</span>
+  </div>
+  <div id="tooltip"></div>
+</body>
+</html>
